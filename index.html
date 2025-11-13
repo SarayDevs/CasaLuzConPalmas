@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Casa con Control de Luz por Palmas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .house-container {
+            position: relative;
+            width: 100%;
+            height: 650px;
+            background: linear-gradient(180deg, #0a0a1a 0%, #1a1a2e 50%, #16213e 100%);
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 30px;
+            border: 5px solid #34495e;
+        }
+
+        .wall {
+            position: absolute;
+            background: #ecf0f1;
+        }
+
+        .wall-left {
+            left: 0;
+            top: 0;
+            width: 150px;
+            height: 100%;
+            background: linear-gradient(90deg, #bdc3c7 0%, #ecf0f1 100%);
+        }
+
+        .wall-right {
+            right: 0;
+            top: 0;
+            width: 150px;
+            height: 100%;
+            background: linear-gradient(270deg, #bdc3c7 0%, #ecf0f1 100%);
+        }
+
+        .wall-back {
+            left: 150px;
+            top: 0;
+            right: 150px;
+            height: 100%;
+            background: #ecf0f1;
+        }
+
+        .living-room {
+            position: absolute;
+            left: 180px;
+            top: 40px;
+            width: 600px;
+            height: 550px;
+            background: #0a0a0a;
+            border-radius: 10px;
+            transition: all 1.5s ease;
+            box-shadow: 0 0 0 rgba(255, 255, 200, 0);
+            z-index: 2;
+            border: 2px solid #1a1a1a;
+        }
+
+        .living-room.light-on {
+            background: linear-gradient(180deg, #f5e6d3 0%, #f4e4bc 50%, #e8d5b7 100%);
+            box-shadow: 0 0 120px rgba(255, 255, 200, 0.9),
+                0 0 250px rgba(255, 255, 200, 0.6),
+                inset 0 0 80px rgba(255, 255, 200, 0.4);
+        }
+
+        .window {
+            position: absolute;
+            top: 40px;
+            right: 40px;
+            width: 140px;
+            height: 160px;
+            background: #000000;
+            border: 8px solid #2c3e50;
+            border-radius: 8px;
+            transition: all 1.5s ease;
+            z-index: 10;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
+        }
+
+        .window.light-on {
+            background: linear-gradient(180deg, #87ceeb 0%, #4682b4 50%, #1e90ff 100%);
+            box-shadow: inset 0 0 30px rgba(135, 206, 235, 0.5),
+                0 0 20px rgba(135, 206, 235, 0.3);
+        }
+
+        .window::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: #2c3e50;
+            z-index: 1;
+        }
+
+        .window::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 5px;
+            height: 100%;
+            background: #2c3e50;
+            z-index: 1;
+        }
+
+        .sofa {
+            position: absolute;
+            bottom: 60px;
+            left: 80px;
+            width: 280px;
+            height: 100px;
+            z-index: 5;
+        }
+
+        .sofa-base {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background: linear-gradient(180deg, #654321 0%, #8b4513 50%, #6b4423 100%);
+            border-radius: 8px 8px 0 0;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6),
+                inset 0 2px 5px rgba(255, 255, 255, 0.1);
+        }
+
+        .sofa-back {
+            position: absolute;
+            bottom: 60px;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background: linear-gradient(90deg, #654321 0%, #8b4513 50%, #654321 100%);
+            border-radius: 8px 8px 0 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .sofa-cushion {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 3px;
+            height: 100%;
+            background: #4a2c1a;
+        }
+
+        .floor-lamp {
+            position: absolute;
+            bottom: 50px;
+            right: 200px;
+            width: 6px;
+            height: 180px;
+            background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+            z-index: 8;
+            border-radius: 3px;
+        }
+
+        .floor-lamp::before {
+            content: '';
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 50px;
+            background: #34495e;
+            border-radius: 50%;
+            border: 4px solid #2c3e50;
+            transition: all 0.8s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .floor-lamp.light-on::before {
+            background: radial-gradient(circle, #fff9c4 0%, #f1c40f 100%);
+            box-shadow: 0 0 40px rgba(241, 196, 15, 1),
+                0 0 80px rgba(241, 196, 15, 0.6),
+                0 0 120px rgba(241, 196, 15, 0.3);
+            border-color: #f39c12;
+        }
+
+        .floor-lamp::after {
+            content: '';
+            position: absolute;
+            top: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 3px;
+            height: 15px;
+            background: #2c3e50;
+        }
+
+        .christmas-tree {
+            position: absolute;
+            bottom: 50px;
+            right: 60px;
+            width: 120px;
+            height: 200px;
+            z-index: 6;
+        }
+
+        .tree-trunk {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 30px;
+            background: linear-gradient(180deg, #8b4513 0%, #654321 100%);
+            border-radius: 3px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .tree-layer {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            border-style: solid;
+            border-color: transparent;
+        }
+
+        .tree-layer-1 {
+            bottom: 30px;
+            width: 0;
+            height: 0;
+            border-left: 50px solid transparent;
+            border-right: 50px solid transparent;
+            border-bottom: 60px solid #0d4d0d;
+            filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.5));
+        }
+
+        .tree-layer-2 {
+            bottom: 70px;
+            width: 0;
+            height: 0;
+            border-left: 40px solid transparent;
+            border-right: 40px solid transparent;
+            border-bottom: 50px solid #0f5f0f;
+            filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.5));
+        }
+
+        .tree-layer-3 {
+            bottom: 110px;
+            width: 0;
+            height: 0;
+            border-left: 30px solid transparent;
+            border-right: 30px solid transparent;
+            border-bottom: 40px solid #0d4d0d;
+            filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.5));
+        }
+
+        .tree-layer-4 {
+            bottom: 140px;
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-bottom: 30px solid #0f5f0f;
+            filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.5));
+        }
+
+        .tree-star {
+            position: absolute;
+            bottom: 165px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 15px solid #f1c40f;
+            filter: drop-shadow(0 0 5px rgba(241, 196, 15, 0.5));
+        }
+
+        .tree-star::before {
+            content: '';
+            position: absolute;
+            top: -15px;
+            left: -8px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 15px solid #f1c40f;
+        }
+
+        .tree-light {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            opacity: 0.2;
+            transition: opacity 0.8s ease, box-shadow 0.8s ease, transform 0.8s ease;
+            transform: scale(0.8);
+        }
+
+        .tree-light.on {
+            opacity: 1;
+            transform: scale(1.2);
+            animation: twinkle 1.5s infinite;
+        }
+
+        @keyframes twinkle {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+
+            50% {
+                opacity: 0.7;
+                transform: scale(1);
+            }
+        }
+
+        .tree-light.red {
+            background: #ff0000;
+        }
+
+        .tree-light.green {
+            background: #00ff00;
+        }
+
+        .tree-light.blue {
+            background: #0080ff;
+        }
+
+        .tree-light.yellow {
+            background: #ffff00;
+        }
+
+        .tree-light.pink {
+            background: #ff00ff;
+        }
+
+        .tree-light.orange {
+            background: #ff8000;
+        }
+
+        .tree-light.white {
+            background: #ffffff;
+        }
+
+        .tree-light.on.red {
+            box-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000;
+        }
+
+        .tree-light.on.green {
+            box-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00;
+        }
+
+        .tree-light.on.blue {
+            box-shadow: 0 0 10px #0080ff, 0 0 20px #0080ff;
+        }
+
+        .tree-light.on.yellow {
+            box-shadow: 0 0 10px #ffff00, 0 0 20px #ffff00;
+        }
+
+        .tree-light.on.pink {
+            box-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
+        }
+
+        .tree-light.on.orange {
+            box-shadow: 0 0 10px #ff8000, 0 0 20px #ff8000;
+        }
+
+        .tree-light.on.white {
+            box-shadow: 0 0 10px #ffffff, 0 0 20px #ffffff;
+        }
+
+        .control-panel {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .status {
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .status.listening {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+
+        .status.stopped {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+
+        .button-container {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            font-weight: bold;
+            margin: 0 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        #label-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .label-item {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .label-item.high-probability {
+            background: #fff3cd;
+            border-color: #ffc107;
+            font-weight: bold;
+        }
+
+        .light-indicator {
+            text-align: center;
+            font-size: 24px;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .light-indicator.on {
+            color: #f1c40f;
+            text-shadow: 0 0 10px rgba(241, 196, 15, 0.8);
+        }
+
+        .light-indicator.off {
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🏠 Casa con Control de Luz por Palmas</h1>
+
+        <div class="house-container">
+            <div class="wall wall-left"></div>
+            <div class="wall wall-back"></div>
+            <div class="wall wall-right"></div>
+
+            <div class="living-room" id="livingRoom">
+                <div class="window" id="windowElement"></div>
+
+                <div class="sofa">
+                    <div class="sofa-back"></div>
+                    <div class="sofa-base">
+                        <div class="sofa-cushion"></div>
+                    </div>
+                </div>
+
+                <div class="floor-lamp" id="floorLamp"></div>
+
+                <div class="christmas-tree" id="christmasTree">
+                    <div class="tree-trunk"></div>
+                    <div class="tree-layer tree-layer-1"></div>
+                    <div class="tree-layer tree-layer-2"></div>
+                    <div class="tree-layer tree-layer-3"></div>
+                    <div class="tree-layer tree-layer-4"></div>
+                    <div class="tree-star"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="control-panel">
+            <div class="status" id="status">Presiona "Iniciar" para comenzar la detección</div>
+
+            <div class="button-container">
+                <button type="button" id="startButton">Iniciar Detección</button>
+                <button type="button" id="stopButton" disabled>Detener</button>
+            </div>
+
+            <div class="light-indicator" id="lightIndicator">
+                <span id="lightStatus">💡 Luz: APAGADA</span>
+            </div>
+
+            <div id="label-container"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/speech-commands@0.4.0/dist/speech-commands.min.js"></script>
+
+    <script>
+        const LIGHT_TIMEOUT = 5000;
+        const PALMAS_THRESHOLD = 0.5;
+
+        let recognizer = null;
+        let lightTimeout = null;
+        let isLightOn = false;
+        let classLabels = [];
+
+        const livingRoom = document.getElementById("livingRoom");
+        const windowElement = document.getElementById("windowElement");
+        const floorLamp = document.getElementById("floorLamp");
+        const lightStatus = document.getElementById("lightStatus");
+        const lightIndicator = document.getElementById("lightIndicator");
+        const statusDiv = document.getElementById("status");
+        const startButton = document.getElementById("startButton");
+        const stopButton = document.getElementById("stopButton");
+        const christmasTree = document.getElementById("christmasTree");
+
+        function createTreeLights() {
+            const colors = ['red', 'green', 'blue', 'yellow', 'pink', 'orange', 'white'];
+            const positions = [{
+                    left: '20%',
+                    top: '60%'
+                },
+                {
+                    left: '50%',
+                    top: '55%'
+                },
+                {
+                    left: '80%',
+                    top: '60%'
+                },
+                {
+                    left: '15%',
+                    top: '45%'
+                },
+                {
+                    left: '40%',
+                    top: '40%'
+                },
+                {
+                    left: '65%',
+                    top: '40%'
+                },
+                {
+                    left: '85%',
+                    top: '45%'
+                },
+                {
+                    left: '30%',
+                    top: '30%'
+                },
+                {
+                    left: '55%',
+                    top: '25%'
+                },
+                {
+                    left: '75%',
+                    top: '30%'
+                },
+                {
+                    left: '25%',
+                    top: '15%'
+                },
+                {
+                    left: '50%',
+                    top: '12%'
+                },
+                {
+                    left: '75%',
+                    top: '15%'
+                },
+                {
+                    left: '45%',
+                    top: '5%'
+                },
+                {
+                    left: '60%',
+                    top: '5%'
+                }
+            ];
+
+            positions.forEach(pos => {
+                const light = document.createElement('div');
+                light.className = `tree-light ${colors[Math.floor(Math.random() * colors.length)]}`;
+                light.style.left = pos.left;
+                light.style.top = pos.top;
+                light.style.animationDelay = `${Math.random() * 2}s`;
+                christmasTree.appendChild(light);
+            });
+        }
+
+        async function createModel() {
+            // Construir URLs absolutas basadas en la ubicación actual
+            const baseUrl = window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
+            const checkpointURL = baseUrl + "tm-my-audio-model/model.json";
+            const metadataURL = baseUrl + "tm-my-audio-model/metadata.json";
+
+            console.log("Cargando modelo desde:", checkpointURL);
+            console.log("Metadata desde:", metadataURL);
+            console.log("Base URL:", baseUrl);
+
+            const recognizerInstance = speechCommands.create(
+                "BROWSER_FFT",
+                undefined,
+                checkpointURL,
+                metadataURL
+            );
+
+            await recognizerInstance.ensureModelLoaded();
+            return recognizerInstance;
+        }
+
+        function turnOnLight() {
+            if (!isLightOn) {
+                isLightOn = true;
+                livingRoom.classList.add("light-on");
+                windowElement.classList.add("light-on");
+                floorLamp.classList.add("light-on");
+
+                document.querySelectorAll('.tree-light').forEach(light => {
+                    light.classList.add('on');
+                });
+
+                lightStatus.textContent = "💡 Luz: ENCENDIDA";
+                lightIndicator.classList.add("on");
+                lightIndicator.classList.remove("off");
+            }
+        }
+
+        function turnOffLight() {
+            if (isLightOn) {
+                isLightOn = false;
+                livingRoom.classList.remove("light-on");
+                windowElement.classList.remove("light-on");
+                floorLamp.classList.remove("light-on");
+
+                document.querySelectorAll('.tree-light').forEach(light => {
+                    light.classList.remove('on');
+                });
+
+                lightStatus.textContent = "💡 Luz: APAGADA";
+                lightIndicator.classList.add("off");
+                lightIndicator.classList.remove("on");
+            }
+        }
+
+        function resetLightTimeout() {
+            if (lightTimeout) clearTimeout(lightTimeout);
+            if (isLightOn) {
+                lightTimeout = setTimeout(() => {
+                    turnOffLight();
+                    lightTimeout = null;
+                }, LIGHT_TIMEOUT);
+            }
+        }
+
+        async function init() {
+            try {
+                statusDiv.textContent = "Cargando modelo...";
+                statusDiv.className = "status listening";
+                startButton.disabled = true;
+
+                recognizer = await createModel();
+                classLabels = recognizer.wordLabels();
+                console.log("Clases:", classLabels);
+
+                const labelContainer = document.getElementById("label-container");
+                labelContainer.innerHTML = "";
+
+                classLabels.forEach((label, i) => {
+                    const labelItem = document.createElement("div");
+                    labelItem.className = "label-item";
+                    labelItem.id = `label-${i}`;
+                    labelContainer.appendChild(labelItem);
+                });
+
+                statusDiv.textContent = "Solicitando permiso de micrófono...";
+
+                await navigator.mediaDevices.getUserMedia({
+                    audio: true
+                });
+                console.log("Micrófono activado");
+
+                statusDiv.textContent = "Escuchando... (Haz palmas para encender la luz)";
+                statusDiv.className = "status listening";
+                startButton.disabled = true;
+                stopButton.disabled = false;
+
+                recognizer.listen(result => {
+                    const scores = result.scores;
+                    const palmasIndex = classLabels.findIndex(label =>
+                        label.toLowerCase().includes("palmas")
+                    );
+
+                    if (palmasIndex !== -1 && scores[palmasIndex] > PALMAS_THRESHOLD) {
+                        turnOnLight();
+                        resetLightTimeout();
+                    }
+
+                    classLabels.forEach((label, i) => {
+                        const labelItem = document.getElementById(`label-${i}`);
+                        if (labelItem) {
+                            const probability = scores[i];
+                            const percentage = (probability * 100).toFixed(1);
+                            labelItem.textContent = `${label}: ${percentage}%`;
+
+                            if (probability > PALMAS_THRESHOLD) {
+                                labelItem.classList.add("high-probability");
+                            } else {
+                                labelItem.classList.remove("high-probability");
+                            }
+                        }
+                    });
+                }, {
+                    includeSpectrogram: true,
+                    probabilityThreshold: 0.3,
+                    invokeCallbackOnNoiseAndUnknown: true,
+                    overlapFactor: 0.50
+                });
+
+            } catch (error) {
+                console.error("Error:", error);
+                statusDiv.textContent = `Error: ${error.message}`;
+                statusDiv.className = "status stopped";
+                startButton.disabled = false;
+                stopButton.disabled = true;
+                alert(`Error: ${error.message}\n\nAsegúrate de usar el servidor Node.js.\nEjecuta: node server.js`);
+            }
+        }
+
+        function stopListening() {
+            if (recognizer) {
+                recognizer.stopListening();
+                recognizer = null;
+            }
+            if (lightTimeout) {
+                clearTimeout(lightTimeout);
+                lightTimeout = null;
+            }
+            turnOffLight();
+            statusDiv.textContent = "Detección detenida";
+            statusDiv.className = "status stopped";
+            startButton.disabled = false;
+            stopButton.disabled = true;
+            document.getElementById("label-container").innerHTML = "";
+        }
+
+        createTreeLights();
+        startButton.addEventListener('click', init);
+        stopButton.addEventListener('click', stopListening);
+    </script>
+</body>
+
+</html>

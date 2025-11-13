@@ -1,0 +1,13 @@
+{
+  "name": "casa-control-luz",
+  "version": "1.0.0",
+  "description": "Casa con control de luz por palmas usando Teachable Machine",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": ["teachable-machine", "audio", "tensorflow"],
+  "author": "",
+  "license": "MIT"
+}
+
